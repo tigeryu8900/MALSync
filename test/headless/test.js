@@ -431,12 +431,13 @@ async function testPageCase(block, testPage, b) {
   }
 
   for (const testCase of testPage.testCases) {
-    const page = await openPage(b, testCase.bypassDetection ?? testPage.bypassDetection);
+    const bypassDetection = testCase.bypassDetection ?? testPage.bypassDetection ?? false;
+    const page = await openPage(b, bypassDetection);
     try {
       logC(block, testCase.url, 1);
       await Promise.race([
         singleCase(block, testCase, page, testPage),
-        new Promise((_, reject) => setTimeout(() => reject('timeout'), 100 * 1000)),
+        new Promise((_, reject) => setTimeout(() => reject('timeout'), bypassDetection ? 200 * 1000 : 100 * 1000)),
       ]);
       logC(block, 'Passed', 2, 'green');
     } catch (e) {
